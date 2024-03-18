@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain', // or 'cover', 'stretch', 'center', etc.
   },
   imageContainer: {
-    paddingTop: 130,
+    paddingTop: 70,
     alignItems: 'center',
     justifyContent: 'center',
   },

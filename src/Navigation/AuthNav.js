@@ -2,16 +2,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginPage from '../Pages/LoginPage';
 import RegisterPage from '../Pages/RegisterPage';
+import DashNav from './DashNav';
 
 const Stack = createStackNavigator();
 
-export default function AuthNav() {
+export default function AuthNav({ navigation }) {
   return (
-    <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator independent={true}>
             <Stack.Screen name="Login" component={LoginPage} options={{ headerShown: false }}/>
             <Stack.Screen name="Register" component={RegisterPage} options={{ headerShown: false }}/>
+            <Stack.Screen name="DashNav" component={DashNav} options={{ headerShown: false }}/>
         </Stack.Navigator>
-    </NavigationContainer>
   );
 }

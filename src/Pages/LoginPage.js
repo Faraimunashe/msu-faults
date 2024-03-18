@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 
 import styles from "./style";
 import {
@@ -9,18 +9,72 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   View,
-  Button,
   TouchableOpacity,
-  Image
+  Image,
+  ActivityIndicator
 } from "react-native";
+import AlertBox from "../Components/AlertBox";
+import SuccessAlertBox from "../Components/SuccessAlertBox";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+//import { AuthContext } from "../Auth/AuthContext";
 
 export default function LoginPage({ navigation }) {
-  const onLoginPress = () => {};
+  //const login = useContext(AuthContext);
 
-  const onFbLoginPress = async () => {
-    Alert.alert(
-      `Please use our React Native Starer Kit instead. You can download it for free at https://instamobile.io`
-    );
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState(false);
+  const [errorMessageText, setErrorMessageText] = useState('');
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [successMessageText, setSuccessMessageText] = useState('');
+
+  const onLoginPress = async () => {
+    if (!email || !password ) {
+      setErrorMessage(true);
+      setErrorMessageText('Please every field must not be empty!');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage(false);
+    setSuccessMessage(false);
+
+    const data = {
+      email: email,
+      password: password,
+    };
+
+    try {
+      const response = await fetch('http://178.62.207.33:8881/api/v1/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.token);
+        setErrorMessage(false);
+        setIsLoading(false);
+        await AsyncStorage.setItem('authToken', data.token);
+        //login(data.token);
+        navigation.navigate('DashNav', { screen: 'BoardNav' });
+      } else {
+        const data = await response.json();
+        console.log(data.message);
+        setErrorMessage(true);
+        setErrorMessageText(data.message);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setErrorMessage(true);
+      setErrorMessageText('An unexpected error occurred. Please try again later.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -34,14 +88,27 @@ export default function LoginPage({ navigation }) {
                     style={styles.image}
                 />
             </View>
-            <Text style={styles.logoText}>MSU Faults</Text>
+            <Text style={styles.logoText}>MSU Disasters</Text>
+            {errorMessage ? (
+              <AlertBox message={errorMessageText} />
+            ):null}
+            {successMessage ? (
+              <SuccessAlertBox message={successMessageText} />
+            ):null}
             <TextInput
-              placeholder="Username"
+              placeholder="Email address"
+              value={email}
+              onChangeText={text => setEmail(text)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
               placeholderColor="#c4c3cb"
               style={styles.loginFormTextInput}
             />
             <TextInput
               placeholder="Password"
+              value={password}
+              onChangeText={text => setPassword(text)}
               placeholderColor="#c4c3cb"
               style={styles.loginFormTextInput}
               secureTextEntry={true}
@@ -49,12 +116,18 @@ export default function LoginPage({ navigation }) {
             <TouchableOpacity
               style={styles.loginButton}
               onPress={() => onLoginPress()}
+              disabled={isLoading}
             >
+              {isLoading ? (
+                <ActivityIndicator style={{marginTop: 15}} size="small" color="white" />
+              ) : (
                 <Text style={styles.buttonText}>Login</Text>
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.registerButton}
               onPress={() => navigation.navigate('Register')}
+              disabled={isLoading}
             >
                 <Text style={styles.buttonText}>Register Account</Text>
             </TouchableOpacity>

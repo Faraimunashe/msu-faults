@@ -13,11 +13,9 @@ import {
 import AlertBox from "../Components/AlertBox";
 import SuccessAlertBox from "../Components/SuccessAlertBox";
 
-export default function RegisterPage({ navigation }) {
+export default function ResetPasswordPage({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [errorMessage, setErrorMessage] = useState(false);
@@ -26,7 +24,7 @@ export default function RegisterPage({ navigation }) {
   const [successMessageText, setSuccessMessageText] = useState('');
 
   const onLoginPress = async () => {
-    if (!username || !email || !password || !passwordConfirmation) {
+    if (!oldPassword || !password || !passwordConfirmation) {
       setErrorMessage(true);
       setErrorMessageText('Please every field must not be empty!');
       return;
@@ -37,15 +35,13 @@ export default function RegisterPage({ navigation }) {
     setSuccessMessage(false);
 
     const data = {
-      name: username,
-      email: email,
-      phone: phone,
+      oldPassword: oldPassword,
       password: password,
       password_confirmation: passwordConfirmation
     };
 
     try {
-      const response = await fetch('http://178.62.207.33:8881/api/v1/register', {
+      const response = await fetch('http://178.62.207.33:8881/api/v1/profiles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +64,7 @@ export default function RegisterPage({ navigation }) {
         setIsLoading(false);
       }
     } catch (error) {
-      console.log(error);
+      console.log("67",error, data);
       setErrorMessage(true);
       setErrorMessageText('An unexpected error occurred. Please try again later.');
       setIsLoading(false);
@@ -80,38 +76,20 @@ export default function RegisterPage({ navigation }) {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.loginScreenContainer}>
           <View style={styles.loginFormView}>
-            <Text style={styles.logoText}>Register Account</Text>
+            <Text style={styles.logoText}>Change Account Password</Text>
             {errorMessage ? (
               <AlertBox message={errorMessageText} />
             ):null}
             {successMessage ? (
               <SuccessAlertBox message={successMessageText} />
             ):null}
-            
             <TextInput
-              placeholder="Username"
-              value={username}
-              onChangeText={text => setUsername(text)}
+              placeholder="Current Password"
+              value={oldPassword}
+              onChangeText={text => setOldPassword(text)}
               placeholderColor="#c4c3cb"
               style={styles.loginFormTextInput}
-            />
-            <TextInput
-                placeholder="Email address"
-                value={email}
-                onChangeText={text => setEmail(text)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                placeholderColor="#c4c3cb"
-                style={styles.loginFormTextInput}
-            />
-            <TextInput
-              placeholder="Phone e.g +263783540959"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad" // Show numeric keyboard
-              placeholderColor="#c4c3cb"
-              style={styles.loginFormTextInput}
+              secureTextEntry={true}
             />
             <TextInput
               placeholder="Password"
@@ -137,15 +115,8 @@ export default function RegisterPage({ navigation }) {
               {isLoading ? (
                 <ActivityIndicator style={{marginTop: 15}} size="small" color="white" />
               ) : (
-                <Text style={styles.buttonText}>Register</Text>
+                <Text style={styles.buttonText}>Change Password</Text>
               )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.registerButton}
-              onPress={() => navigation.navigate('Login')}
-              disabled={isLoading}
-            >
-                <Text style={styles.buttonText}>Login Account</Text>
             </TouchableOpacity>
           </View>
         </View>
